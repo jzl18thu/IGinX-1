@@ -18,6 +18,7 @@
  */
 package cn.edu.tsinghua.iginx.postgresql.tools;
 
+import static cn.edu.tsinghua.iginx.engine.shared.operator.filter.Op.isLikeOp;
 import static cn.edu.tsinghua.iginx.postgresql.tools.Constants.*;
 
 import cn.edu.tsinghua.iginx.engine.shared.operator.filter.*;
@@ -76,12 +77,16 @@ public class FilterTransformer {
     String path = schema.getQuotFullName();
 
     String op =
-        filter.getOp() == Op.LIKE
+        isLikeOp(filter.getOp())
             ? "~"
             : Op.op2Str(filter.getOp())
                 .replace("==", "="); // postgresql does not support "==" but uses "=" instead
 
-    String regex_symbol = filter.getOp() == Op.LIKE ? "$" : "";
+    if (op.startsWith("&")) {
+      op = op.substring(1);
+    }
+
+    String regex_symbol = isLikeOp(filter.getOp()) ? "$" : "";
 
     Object value =
         filter.getValue().getDataType() == DataType.BINARY
@@ -106,6 +111,10 @@ public class FilterTransformer {
     String op =
         Op.op2Str(filter.getOp())
             .replace("==", "="); // postgresql does not support "==" but uses "=" instead
+    if (op.startsWith("&")) {
+      op = op.substring(1);
+    }
+
     return pathA + " " + op + " " + pathB;
   }
 
