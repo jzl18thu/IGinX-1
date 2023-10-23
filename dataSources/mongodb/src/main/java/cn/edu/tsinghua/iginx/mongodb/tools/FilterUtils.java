@@ -334,6 +334,7 @@ public class FilterUtils {
 
   private static Bson fieldOp(Op op, String fieldA, String fieldB) {
     List<String> fields = Arrays.asList("$" + fieldA, "$" + fieldB);
+
     switch (op) {
       case GE:
         return expr(new Document("$gte", fields));
