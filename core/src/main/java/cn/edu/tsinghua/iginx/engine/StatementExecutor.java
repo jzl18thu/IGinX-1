@@ -27,7 +27,12 @@ import static cn.edu.tsinghua.iginx.utils.StringUtils.tryParse2Key;
 
 import cn.edu.tsinghua.iginx.conf.Config;
 import cn.edu.tsinghua.iginx.conf.ConfigDescriptor;
-import cn.edu.tsinghua.iginx.engine.distributedquery.coordinator.*;
+import cn.edu.tsinghua.iginx.engine.distributedquery.coordinator.Evaluator;
+import cn.edu.tsinghua.iginx.engine.distributedquery.coordinator.NaiveEvaluator;
+import cn.edu.tsinghua.iginx.engine.distributedquery.coordinator.NaiveSplitter;
+import cn.edu.tsinghua.iginx.engine.distributedquery.coordinator.Plan;
+import cn.edu.tsinghua.iginx.engine.distributedquery.coordinator.PlanExecutor;
+import cn.edu.tsinghua.iginx.engine.distributedquery.coordinator.Splitter;
 import cn.edu.tsinghua.iginx.engine.logical.constraint.ConstraintChecker;
 import cn.edu.tsinghua.iginx.engine.logical.constraint.ConstraintCheckerManager;
 import cn.edu.tsinghua.iginx.engine.logical.generator.*;
@@ -144,7 +149,7 @@ public class StatementExecutor {
     try {
       String statisticsCollectorClassName =
           ConfigDescriptor.getInstance().getConfig().getStatisticsCollectorClassName();
-      if (statisticsCollectorClassName != null && !statisticsCollectorClassName.equals("")) {
+      if (statisticsCollectorClassName != null && !statisticsCollectorClassName.isEmpty()) {
         Class<? extends IStatisticsCollector> statisticsCollectorClass =
             StatementExecutor.class
                 .getClassLoader()
@@ -351,7 +356,6 @@ public class StatementExecutor {
           SelectStatement selectStatement = (SelectStatement) ctx.getStatement();
           if (selectStatement.isNeedLogicalExplain()) {
             if (evaluator.needDistributedQuery(root)) {
-              //            if (true) {
               Plan plan = splitter.split(root);
               processExplainLogicalPlan(ctx, plan);
             } else {
@@ -372,7 +376,7 @@ public class StatementExecutor {
         }
         long endTime = System.currentTimeMillis();
         long engineCostTime = endTime - startTime;
-        LOGGER.info("engine cost time: " + engineCostTime);
+        LOGGER.info("engine cost time: {}", engineCostTime);
         after(ctx, postPhysicalProcessors);
         ctx.setEngineCostTime(engineCostTime);
 
@@ -646,8 +650,8 @@ public class StatementExecutor {
           }
           // sort types by paths
           List<DataType> sortedDataTypeList = new ArrayList<>();
-          for (int i = 0; i < idx.length; i++) {
-            sortedDataTypeList.add(types.get(idx[i]));
+          for (Integer integer : idx) {
+            sortedDataTypeList.add(types.get(integer));
           }
           types = sortedDataTypeList;
         }
@@ -811,42 +815,6 @@ public class StatementExecutor {
         throw new StatementExecutionException(
             String.format("Execute Error: unknown statement type [%s].", statement.getType()));
     }
-  }
-
-  private void setShowTSRowStreamResult(RequestContext ctx, RowStream stream)
-      throws PhysicalException {
-    if (ctx.isUseStream()) {
-      Result result = new Result(RpcUtils.SUCCESS);
-      result.setResultStream(stream);
-      ctx.setResult(result);
-      return;
-    }
-    List<String> paths = new ArrayList<>();
-    // todo:need physical layer to support.
-    List<Map<String, String>> tagsList = new ArrayList<>();
-    List<DataType> types = new ArrayList<>();
-
-    while (stream.hasNext()) {
-      Row row = stream.next();
-      Object[] rowValues = row.getValues();
-
-      if (rowValues.length == 2) {
-        paths.add(new String((byte[]) rowValues[0]));
-        DataType type = DataTypeUtils.getDataTypeFromString(new String((byte[]) rowValues[1]));
-        if (type == null) {
-          LOGGER.warn("unknown data type [{}]", rowValues[1]);
-        }
-        types.add(type);
-      } else {
-        LOGGER.warn("show columns result col size = {}", rowValues.length);
-      }
-    }
-
-    Result result = new Result(RpcUtils.SUCCESS);
-    result.setPaths(paths);
-    result.setTagsList(tagsList);
-    result.setDataTypes(types);
-    ctx.setResult(result);
   }
 
   private void parseOldTagsFromHeader(Header header, InsertStatement insertStatement)

@@ -124,7 +124,7 @@ public class ResultUtils {
       status.setMessage(ctx.getWarningMsg());
     }
     result = new Result(status);
-    if (timestampList.size() != 0) {
+    if (!timestampList.isEmpty()) {
       Long[] timestamps = timestampList.toArray(new Long[timestampList.size()]);
       result.setKeys(timestamps);
     }
