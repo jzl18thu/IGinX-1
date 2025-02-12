@@ -19,7 +19,11 @@
  */
 package cn.edu.tsinghua.iginx.engine.physical.task.utils;
 
-import cn.edu.tsinghua.iginx.engine.physical.task.*;
+import cn.edu.tsinghua.iginx.engine.physical.task.BinaryMemoryPhysicalTask;
+import cn.edu.tsinghua.iginx.engine.physical.task.IGinXPhysicalTask;
+import cn.edu.tsinghua.iginx.engine.physical.task.MultipleMemoryPhysicalTask;
+import cn.edu.tsinghua.iginx.engine.physical.task.PhysicalTask;
+import cn.edu.tsinghua.iginx.engine.physical.task.UnaryMemoryPhysicalTask;
 import java.util.List;
 
 public class TaskUtils {

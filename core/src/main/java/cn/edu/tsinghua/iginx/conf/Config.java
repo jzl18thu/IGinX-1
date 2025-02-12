@@ -925,4 +925,12 @@ public class Config {
   public void setDefaultScheduledTransformJobDir(String defaultScheduledTransformJobDir) {
     this.defaultScheduledTransformJobDir = defaultScheduledTransformJobDir;
   }
+
+  public int getDistributedQueryTriggerThreshold() {
+    return distributedQueryTriggerThreshold;
+  }
+
+  public void setDistributedQueryTriggerThreshold(int distributedQueryTriggerThreshold) {
+    this.distributedQueryTriggerThreshold = distributedQueryTriggerThreshold;
+  }
 }

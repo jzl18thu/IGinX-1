@@ -236,6 +236,8 @@ public class ConfigDescriptor {
           properties.getProperty(
               "ruleBasedOptimizer",
               "NotFilterRemoveRule=on,FragmentPruningByFilterRule=on,ColumnPruningRule=on,FragmentPruningByPatternRule=on"));
+      config.setDistributedQueryTriggerThreshold(
+          Integer.parseInt(properties.getProperty("distributedQueryTriggerThreshold", "3")));
     } catch (IOException e) {
       config.setUTTestEnv(true);
       config.setNeedInitBasicUDFFunctions(false);
@@ -367,6 +369,9 @@ public class ConfigDescriptor {
     config.setUTTestEnv(EnvUtils.loadEnv("utTestEnv", config.isUTTestEnv()));
     config.setRuleBasedOptimizer(
         EnvUtils.loadEnv("ruleBasedOptimizer", config.getRuleBasedOptimizer()));
+    config.setDistributedQueryTriggerThreshold(
+        EnvUtils.loadEnv(
+            "distributedQueryTriggerThreshold", config.getDistributedQueryTriggerThreshold()));
   }
 
   private void loadUDFListFromFile() {
