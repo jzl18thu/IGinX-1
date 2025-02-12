@@ -1,3 +1,22 @@
+/*
+ * IGinX - the polystore system with high performance
+ * Copyright (C) Tsinghua University
+ * TSIGinX@gmail.com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package cn.edu.tsinghua.iginx.engine;
 
 import static cn.edu.tsinghua.iginx.constant.GlobalConstant.CLEAR_DUMMY_DATA_CAUTION;
@@ -11,11 +30,7 @@ import cn.edu.tsinghua.iginx.conf.ConfigDescriptor;
 import cn.edu.tsinghua.iginx.engine.distributedquery.coordinator.*;
 import cn.edu.tsinghua.iginx.engine.logical.constraint.ConstraintChecker;
 import cn.edu.tsinghua.iginx.engine.logical.constraint.ConstraintCheckerManager;
-import cn.edu.tsinghua.iginx.engine.logical.generator.DeleteGenerator;
-import cn.edu.tsinghua.iginx.engine.logical.generator.InsertGenerator;
-import cn.edu.tsinghua.iginx.engine.logical.generator.LogicalGenerator;
-import cn.edu.tsinghua.iginx.engine.logical.generator.QueryGenerator;
-import cn.edu.tsinghua.iginx.engine.logical.generator.ShowColumnsGenerator;
+import cn.edu.tsinghua.iginx.engine.logical.generator.*;
 import cn.edu.tsinghua.iginx.engine.physical.PhysicalEngine;
 import cn.edu.tsinghua.iginx.engine.physical.PhysicalEngineImpl;
 import cn.edu.tsinghua.iginx.engine.physical.exception.PhysicalException;
@@ -40,15 +55,7 @@ import cn.edu.tsinghua.iginx.engine.shared.file.write.ExportCsv;
 import cn.edu.tsinghua.iginx.engine.shared.file.write.ExportFile;
 import cn.edu.tsinghua.iginx.engine.shared.operator.Operator;
 import cn.edu.tsinghua.iginx.engine.shared.operator.visitor.OperatorInfoVisitor;
-import cn.edu.tsinghua.iginx.engine.shared.processor.PostExecuteProcessor;
-import cn.edu.tsinghua.iginx.engine.shared.processor.PostLogicalProcessor;
-import cn.edu.tsinghua.iginx.engine.shared.processor.PostParseProcessor;
-import cn.edu.tsinghua.iginx.engine.shared.processor.PostPhysicalProcessor;
-import cn.edu.tsinghua.iginx.engine.shared.processor.PreExecuteProcessor;
-import cn.edu.tsinghua.iginx.engine.shared.processor.PreLogicalProcessor;
-import cn.edu.tsinghua.iginx.engine.shared.processor.PreParseProcessor;
-import cn.edu.tsinghua.iginx.engine.shared.processor.PrePhysicalProcessor;
-import cn.edu.tsinghua.iginx.engine.shared.processor.Processor;
+import cn.edu.tsinghua.iginx.engine.shared.processor.*;
 import cn.edu.tsinghua.iginx.exception.StatusCode;
 import cn.edu.tsinghua.iginx.metadata.DefaultMetaManager;
 import cn.edu.tsinghua.iginx.metadata.IMetaManager;
@@ -61,14 +68,9 @@ import cn.edu.tsinghua.iginx.statistics.IStatisticsCollector;
 import cn.edu.tsinghua.iginx.thrift.AggregateType;
 import cn.edu.tsinghua.iginx.thrift.DataType;
 import cn.edu.tsinghua.iginx.thrift.Status;
-import cn.edu.tsinghua.iginx.utils.Bitmap;
-import cn.edu.tsinghua.iginx.utils.ByteUtils;
-import cn.edu.tsinghua.iginx.utils.DataTypeInferenceUtils;
-import cn.edu.tsinghua.iginx.utils.DataTypeUtils;
-import cn.edu.tsinghua.iginx.utils.RpcUtils;
+import cn.edu.tsinghua.iginx.utils.*;
 import cn.hutool.core.io.CharsetDetector;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
@@ -273,7 +275,9 @@ public class StatementExecutor {
               + "see server log for more details.";
       ctx.setResult(new Result(RpcUtils.status(statusCode, errMsg)));
     } finally {
-      ctx.getResult().setSqlType(ctx.getSqlType());
+      if (ctx.getResult() != null) {
+        ctx.getResult().setSqlType(ctx.getSqlType());
+      }
     }
   }
 
@@ -316,6 +320,9 @@ public class StatementExecutor {
         ((SystemStatement) statement).execute(ctx);
       }
     } catch (StatementExecutionException | PhysicalException | IOException e) {
+      if (e.getCause() != null) {
+        LOGGER.error("Execute Error: ", e);
+      }
       StatusCode statusCode = StatusCode.STATEMENT_EXECUTION_ERROR;
       ctx.setResult(new Result(RpcUtils.status(statusCode, e.getMessage())));
     } catch (Exception e) {
@@ -495,7 +502,7 @@ public class StatementExecutor {
 
     if (Objects.requireNonNull(importFile.getType()) == FileType.CSV) {
       ImportCsv importCsv = (ImportCsv) importFile;
-      if (ctx.getLoadCSVFileByteBuffer() == null) {
+      if (ctx.getLoadCSVFileName() == null || ctx.getLoadCSVFileName().isEmpty()) {
         ctx.setResult(new Result(RpcUtils.SUCCESS));
         ctx.getResult().setLoadCSVPath(importCsv.getFilepath());
       } else {
@@ -519,20 +526,11 @@ public class StatementExecutor {
       String keyCol)
       throws IOException {
     final int BATCH_SIZE = config.getBatchSizeImportCsv();
-    File tmpCSV = File.createTempFile("temp", ".csv");
-
-    try (FileOutputStream fos = new FileOutputStream(tmpCSV)) {
-      fos.write(ctx.getLoadCSVFileByteBuffer().array());
-      fos.flush();
-    } catch (IOException e) {
-      throw new RuntimeException(
-          "Encounter an error when writing file "
-              + tmpCSV.getCanonicalPath()
-              + ", because "
-              + e.getMessage());
-    }
-
+    String filepath =
+        String.join(File.separator, System.getProperty("java.io.tmpdir"), ctx.getLoadCSVFileName());
+    File tmpCSV = new File(filepath);
     long count = 0;
+    LOGGER.info("Begin to load data from csv file: {}", tmpCSV.getCanonicalPath());
     try {
       CSVParser parser =
           importCsv
@@ -705,6 +703,7 @@ public class StatementExecutor {
         insertStatement.setBitmaps(bitmaps);
 
         // do the actual insert
+        LOGGER.info("Inserting {} rows, {} rows completed", recordsSize, count);
         RequestContext subInsertContext = new RequestContext(ctx.getSessionId(), insertStatement);
         process(subInsertContext);
 
@@ -755,8 +754,7 @@ public class StatementExecutor {
   private void processCountPoints(RequestContext ctx)
       throws StatementExecutionException, PhysicalException {
     SelectStatement statement =
-        new UnarySelectStatement(
-            Collections.singletonList("*"), 0, Long.MAX_VALUE, AggregateType.COUNT);
+        new UnarySelectStatement(Collections.singletonList("*"), AggregateType.COUNT);
     ctx.setStatement(statement);
     process(ctx);
 
