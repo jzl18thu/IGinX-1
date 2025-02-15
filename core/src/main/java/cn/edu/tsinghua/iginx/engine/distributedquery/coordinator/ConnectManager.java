@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public class ConnectManager {
 
-  private static final Logger logger = LoggerFactory.getLogger(ConnectManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConnectManager.class);
 
   private static class ConnectManagerHolder {
     private static final ConnectManager INSTANCE = new ConnectManager();
@@ -58,7 +58,7 @@ public class ConnectManager {
     try {
       session.openSession();
     } catch (SessionException e) {
-      logger.error("open session failed, because: ", e);
+      LOGGER.error("open session failed, because: ", e);
       return null;
     }
     connnectMap.put(source, session);

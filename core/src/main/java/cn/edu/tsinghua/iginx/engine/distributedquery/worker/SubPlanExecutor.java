@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 public class SubPlanExecutor {
 
-  private static final Logger logger = LoggerFactory.getLogger(SubPlanExecutor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SubPlanExecutor.class);
 
   private static final IMetaManager metaManager = DefaultMetaManager.getInstance();
 
@@ -64,7 +64,7 @@ public class SubPlanExecutor {
     try {
       rowStream = engine.execute(context, subPlan);
     } catch (PhysicalException e) {
-      logger.error("execute sub plan failed, because: ", e);
+      LOGGER.error("execute sub plan failed, because: ", e);
     }
 
     if (rowStream == null) {
@@ -75,7 +75,7 @@ public class SubPlanExecutor {
     try {
       ResultUtils.setResultFromRowStream(context, rowStream);
     } catch (PhysicalException e) {
-      logger.error("read data from row stream error, because, ", e);
+      LOGGER.error("read data from row stream error, because: ", e);
       context.setResult(new Result(RpcUtils.FAILURE));
     }
   }

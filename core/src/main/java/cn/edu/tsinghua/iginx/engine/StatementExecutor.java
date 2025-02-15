@@ -809,7 +809,7 @@ public class StatementExecutor {
         ResultUtils.setResultFromRowStream(ctx, stream);
         break;
       case SHOW_COLUMNS:
-        ResultUtils.setShowTSRowStreamResult(ctx, stream);
+        ResultUtils.setShowColumnsRowStreamResult(ctx, stream);
         break;
       default:
         throw new StatementExecutionException(

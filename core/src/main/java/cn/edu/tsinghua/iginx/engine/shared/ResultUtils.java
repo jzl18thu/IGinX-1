@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 public class ResultUtils {
 
-  private static final Logger logger = LoggerFactory.getLogger(ResultUtils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ResultUtils.class);
 
   public static void setEmptyQueryResp(
       RequestContext ctx, List<String> paths, List<DataType> types) {
@@ -138,7 +138,7 @@ public class ResultUtils {
     stream.close();
   }
 
-  public static void setShowTSRowStreamResult(RequestContext ctx, RowStream stream)
+  public static void setShowColumnsRowStreamResult(RequestContext ctx, RowStream stream)
       throws PhysicalException {
     if (ctx.isUseStream()) {
       Result result = new Result(RpcUtils.SUCCESS);
@@ -159,11 +159,11 @@ public class ResultUtils {
         paths.add(new String((byte[]) rowValues[0]));
         DataType type = DataTypeUtils.getDataTypeFromString(new String((byte[]) rowValues[1]));
         if (type == null) {
-          logger.warn("unknown data type [{}]", rowValues[1]);
+          LOGGER.warn("unknown data type [{}]", rowValues[1]);
         }
         types.add(type);
       } else {
-        logger.warn("show columns result col size = {}", rowValues.length);
+        LOGGER.warn("show columns result col size = {}", rowValues.length);
       }
     }
 
