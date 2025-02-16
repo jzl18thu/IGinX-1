@@ -123,9 +123,7 @@ public class NaiveOperatorMemoryExecutor implements OperatorMemoryExecutor {
   public RowStream executeUnaryOperator(
       UnaryOperator operator, RowStream stream, RequestContext context) throws PhysicalException {
     Table table = transformToTable(stream);
-    if (table != null) {
-      table.setContext(context);
-    }
+    table.setContext(context);
     switch (operator.getType()) {
       case Project:
         return executeProject((Project) operator, table);
@@ -201,9 +199,6 @@ public class NaiveOperatorMemoryExecutor implements OperatorMemoryExecutor {
   }
 
   private Table transformToTable(RowStream stream) throws PhysicalException {
-    if (stream == null) {
-      return null;
-    }
     if (stream instanceof Table) {
       return (Table) stream;
     }

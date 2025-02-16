@@ -664,7 +664,7 @@ public class IginxWorker implements IService.Iface {
       ctx.setRemoteSession(req.isRemoteSession());
     }
     executor.execute(ctx);
-    LOGGER.info("total cost time: " + (ctx.getEndTime() - ctx.getStartTime()));
+    LOGGER.info("total cost time: {}", ctx.getEndTime() - ctx.getStartTime());
     ExecuteSqlResp resp = ctx.getResult().getExecuteSqlResp();
     resp.setCostTime(ctx.getEndTime() - ctx.getStartTime());
     return resp;

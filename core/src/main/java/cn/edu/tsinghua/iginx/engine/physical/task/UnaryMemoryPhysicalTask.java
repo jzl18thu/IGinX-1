@@ -28,7 +28,6 @@ import cn.edu.tsinghua.iginx.engine.physical.memory.execute.stream.EmptyRowStrea
 import cn.edu.tsinghua.iginx.engine.physical.task.visitor.TaskVisitor;
 import cn.edu.tsinghua.iginx.engine.shared.RequestContext;
 import cn.edu.tsinghua.iginx.engine.shared.data.read.RowStream;
-import cn.edu.tsinghua.iginx.engine.shared.operator.Load;
 import cn.edu.tsinghua.iginx.engine.shared.operator.Operator;
 import cn.edu.tsinghua.iginx.engine.shared.operator.UnaryOperator;
 import cn.edu.tsinghua.iginx.engine.shared.operator.type.OperatorType;
@@ -56,17 +55,20 @@ public class UnaryMemoryPhysicalTask extends MemoryPhysicalTask {
     return parentTask;
   }
 
+  private boolean isLoad() {
+    return getOperators().size() == 1 && getOperators().get(0).getType().equals(OperatorType.Load);
+  }
+
   public boolean isProjectFromConstant() {
-    return !getOperators().isEmpty() && OperatorUtils.isProjectFromConstant(getOperators().get(0));
+    return getOperators().size() == 1 && OperatorUtils.isProjectFromConstant(getOperators().get(0));
   }
 
   @Override
   public TaskExecuteResult execute() {
-    if (getOperators().size() == 1 && getOperators().get(0).getType().equals(OperatorType.Load)) {
-      return executeLoad((Load) getOperators().get(0));
-    }
-    RowStream stream = new EmptyRowStream();
-    if (!isProjectFromConstant()) {
+    RowStream stream;
+    if (isLoad() || isProjectFromConstant()) {
+      stream = new EmptyRowStream();
+    } else {
       TaskExecuteResult parentResult = parentTask.getResult();
       if (parentResult == null) {
         return new TaskExecuteResult(
@@ -92,18 +94,6 @@ public class UnaryMemoryPhysicalTask extends MemoryPhysicalTask {
       return new TaskExecuteResult(e);
     }
     return new TaskExecuteResult(stream);
-  }
-
-  private TaskExecuteResult executeLoad(Load load) {
-    OperatorMemoryExecutor executor =
-        OperatorMemoryExecutorFactory.getInstance().getMemoryExecutor();
-    try {
-      RowStream stream = executor.executeUnaryOperator(load, null, getContext());
-      return new TaskExecuteResult(stream);
-    } catch (PhysicalException e) {
-      LOGGER.error("encounter error when execute load in memory: ", e);
-      return new TaskExecuteResult(e);
-    }
   }
 
   @Override
