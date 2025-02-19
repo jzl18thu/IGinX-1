@@ -7850,7 +7850,7 @@ class uploadFileChunk_result(object):
                 break
             if fid == 0:
                 if ftype == TType.STRUCT:
-                    self.success = UploadFileResp()
+                    self.success = Status()
                     self.success.read(iprot)
                 else:
                     iprot.skip(ftype)
@@ -7886,7 +7886,7 @@ class uploadFileChunk_result(object):
         return not (self == other)
 all_structs.append(uploadFileChunk_result)
 uploadFileChunk_result.thrift_spec = (
-    (0, TType.STRUCT, 'success', [UploadFileResp, None], None, ),  # 0
+    (0, TType.STRUCT, 'success', [Status, None], None, ),  # 0
 )
 
 
