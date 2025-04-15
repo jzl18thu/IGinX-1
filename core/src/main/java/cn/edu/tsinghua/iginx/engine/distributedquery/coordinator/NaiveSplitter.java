@@ -21,7 +21,9 @@ package cn.edu.tsinghua.iginx.engine.distributedquery.coordinator;
 
 import cn.edu.tsinghua.iginx.conf.Config;
 import cn.edu.tsinghua.iginx.conf.ConfigDescriptor;
+import cn.edu.tsinghua.iginx.engine.distributedquery.constraint.Constraint;
 import cn.edu.tsinghua.iginx.engine.shared.operator.*;
+import cn.edu.tsinghua.iginx.engine.shared.operator.visitor.LeafVisitor;
 import cn.edu.tsinghua.iginx.engine.shared.source.IGinXSource;
 import cn.edu.tsinghua.iginx.engine.shared.source.OperatorSource;
 import cn.edu.tsinghua.iginx.engine.shared.source.Source;
@@ -87,7 +89,21 @@ public class NaiveSplitter implements Splitter {
       }
     }
 
-    return new Plan(root, subPlans);
+    // return new Plan(root, subPlans);
+    return null;
+  }
+
+  private Map<IginxMeta, Operator> init(Operator root, List<IginxMeta> nodes) {
+    LeafVisitor visitor = new LeafVisitor();
+    root.accept(visitor);
+    List<Operator> resultOps = visitor.getLeafOps(); // 将算子树的所有叶子节点作为初始的子任务分割集合
+
+    return null;
+  }
+
+  List<IginxMeta> allocateNodes(
+      List<Operator> resultOps, List<IginxMeta> nodes, List<Constraint> constraints) {
+    return null;
   }
 
   private Pair<Queue<Operator>, Map<Operator, Operator>> split(Operator root, int k) {

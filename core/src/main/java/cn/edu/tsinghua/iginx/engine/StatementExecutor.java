@@ -407,7 +407,8 @@ public class StatementExecutor {
 
     List<Operator> roots = new ArrayList<>();
     roots.add(plan.getRoot());
-    roots.addAll(plan.getSubPlans());
+    // TODO
+    // roots.addAll(plan.getSubPlans());
 
     int maxLen = 0;
     List<Object[]> cache = new ArrayList<>();

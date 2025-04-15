@@ -113,13 +113,7 @@ public class IginxWorker implements IService.Iface {
         continue;
       }
       metaFromConf.setExtraParams(extraParams);
-      boolean hasAdded = false;
-      for (StorageEngineMeta meta : metaManager.getStorageEngineList()) {
-        if (metaFromConf.equals(meta)) {
-          hasAdded = true;
-          break;
-        }
-      }
+      boolean hasAdded = metaManager.getStorageEngineList().stream().anyMatch(metaFromConf::equals);
       if (hasAdded) {
         hasOtherMetas = true;
         continue;

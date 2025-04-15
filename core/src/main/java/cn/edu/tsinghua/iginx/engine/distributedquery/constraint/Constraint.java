@@ -17,28 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package cn.edu.tsinghua.iginx.engine.distributedquery.coordinator;
+package cn.edu.tsinghua.iginx.engine.distributedquery.constraint;
 
 import cn.edu.tsinghua.iginx.engine.shared.operator.Operator;
 import cn.edu.tsinghua.iginx.metadata.entity.IginxMeta;
-import java.util.Map;
+import java.util.List;
 
-public class Plan {
+public interface Constraint {
 
-  private final Operator root;
+  boolean validate(List<Operator> resultOps, List<IginxMeta> nodes);
 
-  private final Map<IginxMeta, Operator> subPlans;
-
-  public Plan(Operator root, Map<IginxMeta, Operator> subPlans) {
-    this.root = root;
-    this.subPlans = subPlans;
-  }
-
-  public Operator getRoot() {
-    return root;
-  }
-
-  public Map<IginxMeta, Operator> getSubPlans() {
-    return subPlans;
-  }
+  int priority();
 }
