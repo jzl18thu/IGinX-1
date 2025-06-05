@@ -734,6 +734,10 @@ public class DefaultMetaCache implements IMetaCache {
       dummyFragments.removeIf(e -> e.getMasterStorageUnitId().equals(dummyStorageUnitId));
       dummyStorageUnitMetaMap.remove(dummyStorageUnitId);
       if (forAllIginx) {
+        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+        for (StackTraceElement element : stack) {
+          LOGGER.warn(String.valueOf(element));
+        }
         LOGGER.warn("remove dummy storage engine {} in storageEngineMetaMap", storageEngineId);
         storageEngineMetaMap.remove(storageEngineId);
       }
