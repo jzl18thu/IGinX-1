@@ -729,7 +729,10 @@ public class DefaultMetaCache implements IMetaCache {
         for (StackTraceElement element : stack) {
           LOGGER.error(String.valueOf(element));
         }
-        LOGGER.error("unexpected dummy storage engine {} to be removed, current storageEngineMetaMap: {}", storageEngineId, storageEngineMetaMap);
+        LOGGER.error(
+            "unexpected dummy storage engine {} to be removed, current storageEngineMetaMap: {}",
+            storageEngineId,
+            storageEngineMetaMap);
         return false;
       }
       String dummyStorageUnitId = generateDummyStorageUnitId(storageEngineId);
