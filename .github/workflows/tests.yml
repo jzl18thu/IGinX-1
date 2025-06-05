@@ -150,6 +150,7 @@ jobs:
     #            db-matrix: '["VectorDB"]'
     #            close-optimizer: "true"
     #            timeout-minutes: 360
+            db-matrix: '["IoTDB12", "Neo4j"]'
     cluster-test:
         uses: ./.github/workflows/cluster-test.yml
     analyze-required-test-check:
