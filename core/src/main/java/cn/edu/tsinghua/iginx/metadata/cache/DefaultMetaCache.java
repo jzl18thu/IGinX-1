@@ -725,6 +725,10 @@ public class DefaultMetaCache implements IMetaCache {
     fragmentLock.writeLock().lock();
     try {
       if (!storageEngineMetaMap.containsKey(storageEngineId)) {
+        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+        for (StackTraceElement element : stack) {
+          LOGGER.error(String.valueOf(element));
+        }
         LOGGER.error("unexpected dummy storage engine {} to be removed, current storageEngineMetaMap: {}", storageEngineId, storageEngineMetaMap);
         return false;
       }
