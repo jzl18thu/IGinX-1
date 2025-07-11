@@ -23,7 +23,6 @@ jobs:
     Unit-Test:
         strategy:
             fail-fast: false
-            max-parallel: 1
             matrix:
                 java: ${{ fromJSON(inputs.java-matrix) }}
                 python-version: ${{ fromJSON(inputs.python-matrix) }}
