@@ -25,8 +25,13 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class TestUtils {
   /**
@@ -102,5 +107,38 @@ public class TestUtils {
         FileChannel fileChannel = out.getChannel()) {
       fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
     }
+  }
+
+  public static boolean isResultSetEqual(String expected, String actual) {
+    Map<String, Integer> expectedCounts = countDataRows(expected);
+    Map<String, Integer> actualCounts = countDataRows(actual);
+    return Objects.equals(expectedCounts, actualCounts);
+  }
+
+  private static Map<String, Integer> countDataRows(String tableStr) {
+    List<String> lines = Arrays.asList(tableStr.split("\n"));
+    Map<String, Integer> counts = new HashMap<>();
+
+    int start = -1, end = -1;
+
+    for (int i = 0; i < lines.size(); i++) {
+      if (lines.get(i).startsWith("+") && start == -1) {
+        start = i + 2;
+      } else if (start != -1 && lines.get(i).startsWith("+")) {
+        end = i;
+        break;
+      }
+    }
+
+    if (start == -1 || end == -1 || start >= end) {
+      return Collections.emptyMap();
+    }
+
+    for (int i = start; i < end; i++) {
+      String row = lines.get(i).trim();
+      counts.put(row, counts.getOrDefault(row, 0) + 1);
+    }
+
+    return counts;
   }
 }

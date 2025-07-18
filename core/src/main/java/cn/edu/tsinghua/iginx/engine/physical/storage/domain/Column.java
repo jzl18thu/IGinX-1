@@ -60,18 +60,17 @@ public final class Column {
     Header header =
         new Header(
             Arrays.asList(new Field("path", DataType.BINARY), new Field("type", DataType.BINARY)));
-    List<Row> rows =
-        timeseries.stream()
-            .map(
-                e ->
-                    new Row(
-                        header,
-                        new Object[] {
-                          TagKVUtils.toFullName(e.path, e.tags).getBytes(),
-                          e.dataType.toString().getBytes()
-                        }))
-            .collect(Collectors.toList());
+    List<Row> rows = timeseries.stream().map(e -> toRow(header, e)).collect(Collectors.toList());
     return new Table(header, rows);
+  }
+
+  public static Row toRow(Header header, Column column) {
+    return new Row(
+        header,
+        new Object[] {
+          TagKVUtils.toFullName(column.path, column.tags).getBytes(),
+          column.dataType.toString().getBytes()
+        });
   }
 
   public String getPath() {

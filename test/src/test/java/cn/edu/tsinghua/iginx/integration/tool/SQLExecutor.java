@@ -22,6 +22,7 @@ package cn.edu.tsinghua.iginx.integration.tool;
 import static cn.edu.tsinghua.iginx.constant.GlobalConstant.CLEAR_DUMMY_DATA_CAUTION;
 import static cn.edu.tsinghua.iginx.integration.controller.Controller.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import cn.edu.tsinghua.iginx.exception.SessionException;
@@ -101,11 +102,19 @@ public class SQLExecutor {
   }
 
   public void executeAndCompare(String statement, String expectedOutput) {
+    executeAndCompare(statement, expectedOutput, false);
+  }
+
+  public void executeAndCompare(String statement, String expectedOutput, boolean ignoreOrder) {
     String actualOutput = execute(statement);
     if (!needCompareResult) {
       return;
     }
-    assertEquals(expectedOutput, actualOutput);
+    if (ignoreOrder) {
+      assertTrue(TestUtils.isResultSetEqual(expectedOutput, actualOutput));
+    } else {
+      assertEquals(expectedOutput, actualOutput);
+    }
   }
 
   public void executeAndCompareErrMsg(String statement, String expectedErrMsg) {
@@ -140,6 +149,11 @@ public class SQLExecutor {
   }
 
   public void concurrentExecuteAndCompare(List<Pair<String, String>> statementsAndExpectRes) {
+    concurrentExecuteAndCompare(statementsAndExpectRes, false);
+  }
+
+  public void concurrentExecuteAndCompare(
+      List<Pair<String, String>> statementsAndExpectRes, boolean ignoreOrder) {
     LOGGER.info("Concurrent execute statements, size={}", statementsAndExpectRes.size());
     List<Pair<String, Pair<String, String>>> failedList =
         Collections.synchronizedList(new ArrayList<>());
@@ -160,7 +174,9 @@ public class SQLExecutor {
             }
 
             String actualOutput = execute(statement);
-            if (!expected.equals(actualOutput)) {
+            if (ignoreOrder && !TestUtils.isResultSetEqual(expected, actualOutput)) {
+              failedList.add(new Pair<>(statement, new Pair<>(expected, actualOutput)));
+            } else if (!ignoreOrder && !expected.equals(actualOutput)) {
               failedList.add(new Pair<>(statement, new Pair<>(expected, actualOutput)));
             }
             end.countDown();

@@ -35,6 +35,10 @@ public final class Header {
 
   public static final Header EMPTY_HEADER = new Header(Collections.emptyList());
 
+  public static final Header SHOW_COLUMNS_HEADER =
+      new Header(
+          Arrays.asList(new Field("path", DataType.BINARY), new Field("type", DataType.BINARY)));
+
   private final Field key;
 
   private final List<Field> fields;

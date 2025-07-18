@@ -293,7 +293,7 @@ public class SQLSessionIT {
             + "|us.d1.s4|  DOUBLE|\n"
             + "+--------+--------+\n"
             + "Total line number = 4\n";
-    executor.executeAndCompare(statement, expected);
+    executor.executeAndCompare(statement, expected, true);
 
     statement = "SHOW COLUMNS us.d1.*;";
     expected =
@@ -307,7 +307,7 @@ public class SQLSessionIT {
             + "|us.d1.s4|  DOUBLE|\n"
             + "+--------+--------+\n"
             + "Total line number = 4\n";
-    executor.executeAndCompare(statement, expected);
+    executor.executeAndCompare(statement, expected, true);
 
     statement = "SHOW COLUMNS limit 3;";
     expected =
@@ -320,7 +320,7 @@ public class SQLSessionIT {
             + "|us.d1.s3|  BINARY|\n"
             + "+--------+--------+\n"
             + "Total line number = 3\n";
-    executor.executeAndCompare(statement, expected);
+    executor.executeAndCompare(statement, expected, true);
 
     statement = "SHOW COLUMNS limit 2 offset 1;";
     expected =
@@ -332,7 +332,7 @@ public class SQLSessionIT {
             + "|us.d1.s3|  BINARY|\n"
             + "+--------+--------+\n"
             + "Total line number = 2\n";
-    executor.executeAndCompare(statement, expected);
+    executor.executeAndCompare(statement, expected, true);
 
     statement = "SHOW COLUMNS limit 1, 2;";
     expected =
@@ -344,7 +344,7 @@ public class SQLSessionIT {
             + "|us.d1.s3|  BINARY|\n"
             + "+--------+--------+\n"
             + "Total line number = 2\n";
-    executor.executeAndCompare(statement, expected);
+    executor.executeAndCompare(statement, expected, true);
 
     statement = "SHOW COLUMNS us.d1.s1;";
     expected =
@@ -355,7 +355,7 @@ public class SQLSessionIT {
             + "|us.d1.s1|    LONG|\n"
             + "+--------+--------+\n"
             + "Total line number = 1\n";
-    executor.executeAndCompare(statement, expected);
+    executor.executeAndCompare(statement, expected, true);
 
     statement = "SHOW COLUMNS us.d1.s1, us.d1.s3;";
     expected =
@@ -367,7 +367,7 @@ public class SQLSessionIT {
             + "|us.d1.s3|  BINARY|\n"
             + "+--------+--------+\n"
             + "Total line number = 2\n";
-    executor.executeAndCompare(statement, expected);
+    executor.executeAndCompare(statement, expected, true);
   }
 
   @Test
@@ -5958,7 +5958,7 @@ public class SQLSessionIT {
             + "|us.d1.s4| DOUBLE|\n"
             + "+--------+-------+\n"
             + "Total line number = 8\n";
-    executor.executeAndCompare(query, expected);
+    executor.executeAndCompare(query, expected, true);
 
     query = "SELECT path FROM (SHOW COLUMNS us.*);";
     expected =
@@ -5972,7 +5972,7 @@ public class SQLSessionIT {
             + "|us.d1.s4|\n"
             + "+--------+\n"
             + "Total line number = 4\n";
-    executor.executeAndCompare(query, expected);
+    executor.executeAndCompare(query, expected, true);
 
     query = "SELECT path FROM (SHOW COLUMNS test.*, us.* LIMIT 3);";
     expected =
@@ -5985,7 +5985,7 @@ public class SQLSessionIT {
             + "|test.c|\n"
             + "+------+\n"
             + "Total line number = 3\n";
-    executor.executeAndCompare(query, expected);
+    executor.executeAndCompare(query, expected, true);
 
     query = "SELECT path FROM (SHOW COLUMNS test.*, us.*) LIMIT 3;";
     expected =
@@ -5998,7 +5998,7 @@ public class SQLSessionIT {
             + "|test.c|\n"
             + "+------+\n"
             + "Total line number = 3\n";
-    executor.executeAndCompare(query, expected);
+    executor.executeAndCompare(query, expected, true);
 
     query =
         "SELECT path FROM (SHOW COLUMNS us.*) WHERE path LIKE \".*.s3\" OR path LIKE \".*.s4\";";
@@ -6011,7 +6011,7 @@ public class SQLSessionIT {
             + "|us.d1.s4|\n"
             + "+--------+\n"
             + "Total line number = 2\n";
-    executor.executeAndCompare(query, expected);
+    executor.executeAndCompare(query, expected, true);
 
     query = "SELECT path AS p FROM (SHOW COLUMNS us.*) WHERE type = \"LONG\";";
     expected =
@@ -6023,7 +6023,7 @@ public class SQLSessionIT {
             + "|us.d1.s2|\n"
             + "+--------+\n"
             + "Total line number = 2\n";
-    executor.executeAndCompare(query, expected);
+    executor.executeAndCompare(query, expected, true);
 
     query = "SELECT type AS t FROM (SHOW COLUMNS test.*) GROUP BY type ORDER BY type;";
     expected =
@@ -6037,7 +6037,7 @@ public class SQLSessionIT {
             + "|   LONG|\n"
             + "+-------+\n"
             + "Total line number = 4\n";
-    executor.executeAndCompare(query, expected);
+    executor.executeAndCompare(query, expected, true);
 
     query =
         "SELECT * FROM (SHOW COLUMNS test.*) AS test JOIN (SHOW COLUMNS us.*) AS us ON test.type = us.type;";
@@ -6052,7 +6052,7 @@ public class SQLSessionIT {
             + "|   test.d|   BINARY|us.d1.s3| BINARY|\n"
             + "+---------+---------+--------+-------+\n"
             + "Total line number = 4\n";
-    executor.executeAndCompare(query, expected);
+    executor.executeAndCompare(query, expected, true);
 
     query =
         "SELECT * FROM (SHOW COLUMNS test.*) AS test LEFT JOIN (SHOW COLUMNS us.*) AS us ON test.type = us.type;";
@@ -6068,7 +6068,7 @@ public class SQLSessionIT {
             + "|   test.c|  BOOLEAN|    null|   null|\n"
             + "+---------+---------+--------+-------+\n"
             + "Total line number = 5\n";
-    executor.executeAndCompare(query, expected);
+    executor.executeAndCompare(query, expected, true);
 
     query = "SELECT * FROM test WHERE EXISTS (SELECT * FROM (SHOW COLUMNS us.*));";
     expected =
@@ -6083,7 +6083,7 @@ public class SQLSessionIT {
             + "|  4|     5|   5.5|  true|   eee|\n"
             + "+---+------+------+------+------+\n"
             + "Total line number = 5\n";
-    executor.executeAndCompare(query, expected);
+    executor.executeAndCompare(query, expected, true);
 
     query =
         "SELECT * FROM test WHERE EXISTS (SELECT * FROM (SHOW COLUMNS us.*) WHERE type = \"BOOLEAN\");";
@@ -6723,7 +6723,7 @@ public class SQLSessionIT {
             + "|us.d1.s4|  DOUBLE|\n"
             + "+--------+--------+\n"
             + "Total line number = 4\n";
-    executor.executeAndCompare(showColumns, expected);
+    executor.executeAndCompare(showColumns, expected, true);
 
     String deleteTimeSeries = "DELETE COLUMNS us.d1.s4;";
     executor.execute(deleteTimeSeries);
@@ -6739,7 +6739,7 @@ public class SQLSessionIT {
             + "|us.d1.s3|  BINARY|\n"
             + "+--------+--------+\n"
             + "Total line number = 3\n";
-    executor.executeAndCompare(showColumns, expected);
+    executor.executeAndCompare(showColumns, expected, true);
 
     String showColumnsData = "SELECT s4 FROM us.d1;";
     expected = "ResultSets:\n" + "+---+\n" + "|key|\n" + "+---+\n" + "+---+\n" + "Empty set.\n";
@@ -6989,7 +6989,7 @@ public class SQLSessionIT {
                     + "+---------------+---------------+---------------+---------------+\n"
                     + "Total line number = 1\n"),
             new Pair<>("COUNT POINTS;", "Points num: 60000\n"));
-    executor.concurrentExecuteAndCompare(statementsAndExpectRes);
+    executor.concurrentExecuteAndCompare(statementsAndExpectRes, true);
   }
 
   @Test
