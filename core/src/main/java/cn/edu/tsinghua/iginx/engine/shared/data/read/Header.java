@@ -37,7 +37,7 @@ public final class Header {
 
   public static final Header SHOW_COLUMNS_HEADER =
       new Header(
-          Arrays.asList(new Field("path", DataType.BINARY), new Field("type", DataType.BINARY)));
+          Arrays.asList(new Field("Path", DataType.BINARY), new Field("Type", DataType.BINARY)));
 
   private final Field key;
 

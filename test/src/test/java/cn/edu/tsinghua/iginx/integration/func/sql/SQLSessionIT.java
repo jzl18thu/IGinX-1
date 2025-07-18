@@ -5946,7 +5946,7 @@ public class SQLSessionIT {
     String expected =
         "ResultSets:\n"
             + "+--------+-------+\n"
-            + "|    path|   type|\n"
+            + "|    Path|   Type|\n"
             + "+--------+-------+\n"
             + "|  test.a|   LONG|\n"
             + "|  test.b| DOUBLE|\n"
@@ -5960,11 +5960,11 @@ public class SQLSessionIT {
             + "Total line number = 8\n";
     executor.executeAndCompare(query, expected, true);
 
-    query = "SELECT path FROM (SHOW COLUMNS us.*);";
+    query = "SELECT Path FROM (SHOW COLUMNS us.*);";
     expected =
         "ResultSets:\n"
             + "+--------+\n"
-            + "|    path|\n"
+            + "|    Path|\n"
             + "+--------+\n"
             + "|us.d1.s1|\n"
             + "|us.d1.s2|\n"
@@ -5974,11 +5974,11 @@ public class SQLSessionIT {
             + "Total line number = 4\n";
     executor.executeAndCompare(query, expected, true);
 
-    query = "SELECT path FROM (SHOW COLUMNS test.*, us.* LIMIT 3);";
+    query = "SELECT Path FROM (SHOW COLUMNS test.*, us.* LIMIT 3);";
     expected =
         "ResultSets:\n"
             + "+------+\n"
-            + "|  path|\n"
+            + "|  Path|\n"
             + "+------+\n"
             + "|test.a|\n"
             + "|test.b|\n"
@@ -5987,11 +5987,11 @@ public class SQLSessionIT {
             + "Total line number = 3\n";
     executor.executeAndCompare(query, expected, true);
 
-    query = "SELECT path FROM (SHOW COLUMNS test.*, us.*) LIMIT 3;";
+    query = "SELECT Path FROM (SHOW COLUMNS test.*, us.*) LIMIT 3;";
     expected =
         "ResultSets:\n"
             + "+------+\n"
-            + "|  path|\n"
+            + "|  Path|\n"
             + "+------+\n"
             + "|test.a|\n"
             + "|test.b|\n"
@@ -6001,11 +6001,11 @@ public class SQLSessionIT {
     executor.executeAndCompare(query, expected, true);
 
     query =
-        "SELECT path FROM (SHOW COLUMNS us.*) WHERE path LIKE \".*.s3\" OR path LIKE \".*.s4\";";
+        "SELECT Path FROM (SHOW COLUMNS us.*) WHERE Path LIKE \".*.s3\" OR Path LIKE \".*.s4\";";
     expected =
         "ResultSets:\n"
             + "+--------+\n"
-            + "|    path|\n"
+            + "|    Path|\n"
             + "+--------+\n"
             + "|us.d1.s3|\n"
             + "|us.d1.s4|\n"
@@ -6013,7 +6013,7 @@ public class SQLSessionIT {
             + "Total line number = 2\n";
     executor.executeAndCompare(query, expected, true);
 
-    query = "SELECT path AS p FROM (SHOW COLUMNS us.*) WHERE type = \"LONG\";";
+    query = "SELECT Path AS p FROM (SHOW COLUMNS us.*) WHERE Type = \"LONG\";";
     expected =
         "ResultSets:\n"
             + "+--------+\n"
@@ -6025,7 +6025,7 @@ public class SQLSessionIT {
             + "Total line number = 2\n";
     executor.executeAndCompare(query, expected, true);
 
-    query = "SELECT type AS t FROM (SHOW COLUMNS test.*) GROUP BY type ORDER BY type;";
+    query = "SELECT Type AS t FROM (SHOW COLUMNS test.*) GROUP BY Type ORDER BY Type;";
     expected =
         "ResultSets:\n"
             + "+-------+\n"
@@ -6040,11 +6040,11 @@ public class SQLSessionIT {
     executor.executeAndCompare(query, expected, true);
 
     query =
-        "SELECT * FROM (SHOW COLUMNS test.*) AS test JOIN (SHOW COLUMNS us.*) AS us ON test.type = us.type;";
+        "SELECT * FROM (SHOW COLUMNS test.*) AS test JOIN (SHOW COLUMNS us.*) AS us ON test.Type = us.Type;";
     expected =
         "ResultSets:\n"
             + "+---------+---------+--------+-------+\n"
-            + "|test.path|test.type| us.path|us.type|\n"
+            + "|test.Path|test.Type| us.Path|us.Type|\n"
             + "+---------+---------+--------+-------+\n"
             + "|   test.a|     LONG|us.d1.s1|   LONG|\n"
             + "|   test.a|     LONG|us.d1.s2|   LONG|\n"
@@ -6055,11 +6055,11 @@ public class SQLSessionIT {
     executor.executeAndCompare(query, expected, true);
 
     query =
-        "SELECT * FROM (SHOW COLUMNS test.*) AS test LEFT JOIN (SHOW COLUMNS us.*) AS us ON test.type = us.type;";
+        "SELECT * FROM (SHOW COLUMNS test.*) AS test LEFT JOIN (SHOW COLUMNS us.*) AS us ON test.Type = us.Type;";
     expected =
         "ResultSets:\n"
             + "+---------+---------+--------+-------+\n"
-            + "|test.path|test.type| us.path|us.type|\n"
+            + "|test.Path|test.Type| us.Path|us.Type|\n"
             + "+---------+---------+--------+-------+\n"
             + "|   test.a|     LONG|us.d1.s1|   LONG|\n"
             + "|   test.a|     LONG|us.d1.s2|   LONG|\n"
@@ -6086,7 +6086,7 @@ public class SQLSessionIT {
     executor.executeAndCompare(query, expected, true);
 
     query =
-        "SELECT * FROM test WHERE EXISTS (SELECT * FROM (SHOW COLUMNS us.*) WHERE type = \"BOOLEAN\");";
+        "SELECT * FROM test WHERE EXISTS (SELECT * FROM (SHOW COLUMNS us.*) WHERE Type = \"BOOLEAN\");";
     expected =
         "ResultSets:\n"
             + "+---+------+------+------+------+\n"
@@ -6105,11 +6105,11 @@ public class SQLSessionIT {
     executor.execute(insert);
 
     String query =
-        "SELECT path FROM (SHOW COLUMNS test.*) WHERE type = \"LONG\" OR type = \"DOUBLE\" ORDER BY path;";
+        "SELECT Path FROM (SHOW COLUMNS test.*) WHERE Type = \"LONG\" OR Type = \"DOUBLE\" ORDER BY Path;";
     String expected =
         "ResultSets:\n"
             + "+------+\n"
-            + "|  path|\n"
+            + "|  Path|\n"
             + "+------+\n"
             + "|test.a|\n"
             + "|test.b|\n"
@@ -6133,7 +6133,7 @@ public class SQLSessionIT {
     executor.executeAndCompare(query, expected);
 
     query =
-        "SELECT VALUE2META(SELECT path FROM (SHOW COLUMNS test.*) WHERE type = \"LONG\" OR type = \"DOUBLE\" ORDER BY path) FROM (SELECT * FROM test);";
+        "SELECT VALUE2META(SELECT Path FROM (SHOW COLUMNS test.*) WHERE Type = \"LONG\" OR Type = \"DOUBLE\" ORDER BY Path) FROM (SELECT * FROM test);";
     expected =
         "ResultSets:\n"
             + "+---+------+------+\n"
@@ -6989,7 +6989,7 @@ public class SQLSessionIT {
                     + "+---------------+---------------+---------------+---------------+\n"
                     + "Total line number = 1\n"),
             new Pair<>("COUNT POINTS;", "Points num: 60000\n"));
-    executor.concurrentExecuteAndCompare(statementsAndExpectRes, true);
+    executor.concurrentExecuteAndCompare(statementsAndExpectRes);
   }
 
   @Test

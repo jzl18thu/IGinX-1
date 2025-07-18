@@ -334,7 +334,7 @@ public class StoragePhysicalTaskExecutor {
       allStreams.add(stream);
     }
 
-    Flowable<Column> columnStream = Flowable.merge(allStreams, 10);
+    Flowable<Column> columnStream = Flowable.merge(allStreams, 20);
 
     int limit = showColumns.getLimit();
     int offset = showColumns.getOffset();

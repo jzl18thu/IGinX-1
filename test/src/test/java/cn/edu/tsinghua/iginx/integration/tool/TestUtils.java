@@ -110,9 +110,17 @@ public class TestUtils {
   }
 
   public static boolean isResultSetEqual(String expected, String actual) {
+    String expectedHeader = getHeader(expected);
+    String actualHeader = getHeader(actual);
     Map<String, Integer> expectedCounts = countDataRows(expected);
     Map<String, Integer> actualCounts = countDataRows(actual);
-    return Objects.equals(expectedCounts, actualCounts);
+    return Objects.equals(expectedCounts, actualCounts)
+        && Objects.equals(expectedHeader, actualHeader);
+  }
+
+  private static String getHeader(String tableStr) {
+    List<String> lines = Arrays.asList(tableStr.split("\n"));
+    return lines.get(1).startsWith("|") ? lines.get(1) : "";
   }
 
   private static Map<String, Integer> countDataRows(String tableStr) {
@@ -135,7 +143,7 @@ public class TestUtils {
     }
 
     for (int i = start; i < end; i++) {
-      String row = lines.get(i).trim();
+      String row = lines.get(i);
       counts.put(row, counts.getOrDefault(row, 0) + 1);
     }
 

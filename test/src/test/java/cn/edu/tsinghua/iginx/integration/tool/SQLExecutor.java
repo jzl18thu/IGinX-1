@@ -22,7 +22,6 @@ package cn.edu.tsinghua.iginx.integration.tool;
 import static cn.edu.tsinghua.iginx.constant.GlobalConstant.CLEAR_DUMMY_DATA_CAUTION;
 import static cn.edu.tsinghua.iginx.integration.controller.Controller.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import cn.edu.tsinghua.iginx.exception.SessionException;
@@ -111,7 +110,14 @@ public class SQLExecutor {
       return;
     }
     if (ignoreOrder) {
-      assertTrue(TestUtils.isResultSetEqual(expectedOutput, actualOutput));
+      if (!TestUtils.isResultSetEqual(expectedOutput, actualOutput)) {
+        LOGGER.error(
+            "Statement: \"{}\" execute fail,\nexpected:\"{}\",\nactual:\"{}\"",
+            statement,
+            expectedOutput,
+            actualOutput);
+        fail();
+      }
     } else {
       assertEquals(expectedOutput, actualOutput);
     }
@@ -149,11 +155,6 @@ public class SQLExecutor {
   }
 
   public void concurrentExecuteAndCompare(List<Pair<String, String>> statementsAndExpectRes) {
-    concurrentExecuteAndCompare(statementsAndExpectRes, false);
-  }
-
-  public void concurrentExecuteAndCompare(
-      List<Pair<String, String>> statementsAndExpectRes, boolean ignoreOrder) {
     LOGGER.info("Concurrent execute statements, size={}", statementsAndExpectRes.size());
     List<Pair<String, Pair<String, String>>> failedList =
         Collections.synchronizedList(new ArrayList<>());
@@ -165,6 +166,7 @@ public class SQLExecutor {
           () -> {
             String statement = pair.getK();
             String expected = pair.getV();
+            boolean ignoreOrder = statement.toLowerCase().startsWith("show columns");
             start.countDown();
 
             try {
@@ -179,6 +181,7 @@ public class SQLExecutor {
             } else if (!ignoreOrder && !expected.equals(actualOutput)) {
               failedList.add(new Pair<>(statement, new Pair<>(expected, actualOutput)));
             }
+            LOGGER.info("Successfully execute statement: \"{}\"", statement);
             end.countDown();
           });
     }
