@@ -6037,7 +6037,7 @@ public class SQLSessionIT {
             + "|   LONG|\n"
             + "+-------+\n"
             + "Total line number = 4\n";
-    executor.executeAndCompare(query, expected, true);
+    executor.executeAndCompare(query, expected);
 
     query =
         "SELECT * FROM (SHOW COLUMNS test.*) AS test JOIN (SHOW COLUMNS us.*) AS us ON test.Type = us.Type;";
